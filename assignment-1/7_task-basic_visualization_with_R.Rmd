@@ -1,0 +1,348 @@
+---
+title: 'Assignment 1, Task 7 - Basic visualization with R'
+author: "María José Pino"
+---
+
+Comment: Files are provided in the shared Google Drive folder under Course week 1.
+Examples of how to use visualization functions in R and other highly useful information that may aid you during the course can be found here https://biotechnoalchemist.github.io/Teaching2025/ 
+The nummenmaa-package mentioned within the examples can be installed with the code below if you wish to try some of the examples yourself.
+
+```{r}
+install.packages("remotes")
+library(remotes)
+install
+url("http://emotion.utu.fi/wp-content/uploads/2019/11")
+```
+
+## 1. Compare the distributions of the body heights of the two species from the 'magic_guys.csv' dataset graphically
+
+```{r}
+# load dataser
+magic_guys <- read.csv(
+  '/Users/marjos/Documents/courses/ki/RIKEN-bioinformatics/Week 1 - data for Task 7/magic_guys.csv'
+)
+```
+
+```{r}
+par(mfrow = c(1, 2))
+hist(magic_guys$length, main = "histogram length", xlab = "lenght (cm)")
+hist(magic_guys$weight, main = "histogram weight", xlab = "weight (kg)")
+```
+
+### a. using the basic 'hist' function as well as ‘ggplot’ and ‘geom_histogram’ functions from the ggplot2 package. Optimize the plots for example by trying several different 'breaks'
+. Note that ggplot2-based functions give you many more options for changing the visualization parameters, try some of them.
+
+```{r}
+#-- hist
+par(mfrow = c(1, 3))
+hist(
+  magic_guys$length,
+  main = "histogram length",
+  xlab = "lenght (cm)",
+  breaks = 10
+)
+hist(
+  magic_guys$length,
+  main = "histogram length",
+  xlab = "lenght (cm)",
+  breaks = 20
+)
+hist(
+  magic_guys$length,
+  main = "histogram length",
+  xlab = "lenght (cm)",
+  breaks = 30
+)
+
+par(mfrow = c(1, 3))
+hist(
+  magic_guys$weight,
+  main = "histogram weight",
+  xlab = "weight (kg)",
+  breaks = 10
+)
+hist(
+  magic_guys$weight,
+  main = "histogram weight",
+  xlab = "weight (kg)",
+  breaks = 20
+)
+hist(
+  magic_guys$weight,
+  main = "histogram weight",
+  xlab = "weight (kg)",
+  breaks = 30
+)
+
+#-- ggplot
+library(ggplot2) # load library
+
+#-- weight
+ggplot(magic_guys, aes(x = weight, fill = species)) +
+  geom_histogram(bins = 10, position = "identity") +
+  labs(title = "Histogram weight", x = "Body weight (kg)") +
+  theme_minimal()
+
+ggplot(magic_guys, aes(x = weight, fill = species)) +
+  geom_histogram(bins = 20, position = "identity") +
+  labs(title = "Histogram weight", x = "Body weight (kg)") +
+  theme_minimal()
+
+ggplot(magic_guys, aes(x = weight, fill = species)) +
+  geom_histogram(bins = 30, position = "identity") +
+  labs(title = "Histogram weight", x = "Body weight (kg)") +
+  theme_minimal()
+
+#-- length
+ggplot(magic_guys, aes(x = length, fill = species)) +
+  geom_histogram(bins = 10, position = "identity") +
+  labs(title = "Histogram length", x = "Body height (cm)") +
+  theme_minimal()
+
+ggplot(magic_guys, aes(x = length, fill = species)) +
+  geom_histogram(bins = 20, position = "identity") +
+  labs(title = "Histogram length", , x = "Body height (cm)") +
+  theme_minimal()
+
+ggplot(magic_guys, aes(x = length, fill = species)) +
+  geom_histogram(bins = 30, position = "identity") +
+  labs(title = "Histogram length", x = "Body height (cm)") +
+  theme_minimal()
+```
+
+### b. Do the same comparison as in a. but with boxplots. If you want to use the ggplot2-package, use the functions ‘ggplot’ and ‘geom_boxplot’
+
+```{r}
+#-- height
+ggplot(magic_guys, aes(x = species, y = length, fill = species)) +
+  geom_boxplot(position = "dodge2", width = .3) +
+  geom_jitter(width = .2, alpha = .5, size = .5) +
+  labs(title = "Boxplot length", x = "", y = "Body height (cm)") +
+  theme_minimal()
+
+#-- weight
+ggplot(magic_guys, aes(x = species, y = weight, fill = species)) +
+  geom_boxplot(position = "dodge2", width = .3) +
+  geom_jitter(width = .2, alpha = .5, size = .5) +
+  labs(title = "Boxplot weight", x = "", y = "Body weight (kg)") +
+  theme_minimal()
+
+```
+
+### c. Save the plots with the ‘png’ ,‘pdf’, and ‘svg’ formats. In which situation would you use which file format?
+
+```{r}
+install.packages("svglite")
+
+dir_plots <- file.path(getwd(), "plots")
+dir.create(dir_plots)
+dir.create(file.path(dir_plots, "weight"))
+dir.create(file.path(dir_plots, "height"))
+```
+
+```{r}
+##-- Histogram
+
+#-- weight
+for (b in seq(10, 30, by = 10)) {
+  ggplot(magic_guys, aes(x = weight, fill = species)) +
+    geom_histogram(bins = b, position = "identity") +
+    labs(title = "Histogram weight", x = "Body weight (kg)") +
+    theme_minimal()
+
+  ggsave(
+    file.path(dir_plots, "weight", paste0("ggplot_histogram_bin_", b, ".png")),
+    height = 5,
+    width = 5
+  )
+  ggsave(
+    file.path(dir_plots, "weight", paste0("ggplot_histogram_bin_", b, ".pdf")),
+    height = 5,
+    width = 5
+  )
+  #ggsave(file.path(dir_plots, "weight", paste0("ggplot_histogram_bin_", b, ".svg")), height = 5, width = 5)
+}
+
+#-- height
+for (b in seq(10, 30, by = 10)) {
+  ggplot(magic_guys, aes(x = length, fill = species)) +
+    geom_histogram(bins = b, position = "identity") +
+    labs(title = "Histogram height", x = "Body height (cm)") +
+    theme_minimal()
+
+  ggsave(
+    file.path(dir_plots, "height", paste0("ggplot_histogram_bin_", b, ".png")),
+    height = 5,
+    width = 5
+  )
+  ggsave(
+    file.path(dir_plots, "height", paste0("ggplot_histogram_bin_", b, ".pdf")),
+    height = 5,
+    width = 5
+  )
+  #ggsave(file.path(dir_plots, "height", paste0("ggplot_histogram_bin_", b, ".svg")), height = 5, width = 5)
+}
+
+##-- Boxplot
+
+#-- height
+ggplot(magic_guys, aes(x = species, y = length, fill = species)) +
+  geom_boxplot(position = "dodge2", width = .3) +
+  geom_jitter(width = .2, alpha = .5, size = .5) +
+  labs(title = "Boxplot length", x = "", y = "Body height (cm)") +
+  theme_minimal()
+
+ggsave(
+  file.path(dir_plots, "height", paste0("ggplot_boxplot.png")),
+  height = 5,
+  width = 5
+)
+ggsave(
+  file.path(dir_plots, "height", paste0("ggplot_boxplot.pdf")),
+  height = 5,
+  width = 5
+)
+#ggsave(file.path(dir_plots, "height", paste0("ggplot_boxplot.svg")), height = 5, width = 5)
+
+#-- weight
+ggplot(magic_guys, aes(x = species, y = weight, fill = species)) +
+  geom_boxplot(position = "dodge2", width = .3) +
+  geom_jitter(width = .2, alpha = .5, size = .5) +
+  labs(title = "Boxplot weight", x = "", y = "Body weight (kg)") +
+  theme_minimal()
+
+ggsave(
+  file.path(dir_plots, "weight", paste0("ggplot_boxplot_bin.png")),
+  height = 5,
+  width = 5
+)
+ggsave(
+  file.path(dir_plots, "weight", paste0("ggplot_boxplot_bin.pdf")),
+  height = 5,
+  width = 5
+)
+#ggsave(file.path(dir_plots, "weight", paste0("ggplot_boxplot_bin_", b, ".svg")), height = 5, width = 5)
+
+```
+
+
+## 2. Load the gene expression data matrix from the ‘microarray_data.tab’ dataset provided in the shared folder, it is a big tabular separated matrix.
+
+```{r}
+microarray_data <- read.delim(
+  '/Users/marjos/Documents/courses/ki/RIKEN-bioinformatics/Week 1 - data for Task 7/microarray_data.tab',
+  header = TRUE
+)
+```
+
+### a. How big is the matrix in terms of rows and columns?
+
+```{r}
+paste0(
+  "The matrix `microarray_data`has ",
+  ncol(microarray_data),
+  " columns and ",
+  nrow(microarray_data),
+  " rows"
+)
+```
+
+### b. Count the missing values per gene and visualize this result.
+
+```{r}
+# 1. Count missing values per gene (row)
+missing_counts <- rowSums(is.na(microarray_data))
+
+# 2. Put results into a data frame for plotting
+df <- data.frame(
+  gene = rownames(microarray_data),
+  missing = missing_counts
+)
+
+df_top10 <- df[order(-df$missing), ][1:10, ]
+
+# 3. Visualize with ggplot2 top 10 genes with missing values
+ggplot(df_top10, aes(x = reorder(gene, missing), y = missing)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(
+    title = "Top 10 genes with missing values",
+    x = "Gene",
+    y = "Number of missing values"
+  ) +
+  theme_minimal()
+```
+
+### c. Find the genes for which there are more than X% (X=10%, 20%, 50%) missing values.
+
+```{r}
+# Function to get genes with > X% missing values
+genes_missing_threshold <- function(matrix, threshold = 0.1) {
+  # threshold is a proportion (e.g., 0.1 for 10%)
+  missing_prop <- rowSums(is.na(matrix)) / ncol(matrix)
+  genes <- rownames(matrix)[missing_prop > threshold]
+  return(genes)
+}
+
+# Examples
+genes_missing_10 <- genes_missing_threshold(microarray_data, 0.10) # >10% missing
+genes_missing_20 <- genes_missing_threshold(microarray_data, 0.20) # >20% missing
+genes_missing_50 <- genes_missing_threshold(microarray_data, 0.50) # >50% missing
+
+genes_missing_10
+genes_missing_20
+genes_missing_50
+
+```
+
+### d. Replace the missing values by the average expression value for the particular gene. (Note: Imputing data has to be used with caution!) 
+
+```{r}
+# Function to replace NAs with row-wise mean
+impute_by_gene_mean <- function(matrix) {
+  matrix_imputed <- matrix # copy matrix
+  row_means <- rowMeans(matrix, na.rm = TRUE)
+
+  for (i in 1:nrow(matrix)) {
+    na_idx <- is.na(matrix[i, ])
+    matrix_imputed[i, na_idx] <- row_means[i]
+  }
+
+  return(matrix_imputed)
+}
+
+# Apply function
+microarray_data_imputed <- impute_by_gene_mean(microarray_data)
+microarray_data_imputed
+```
+
+## 3. Visualize the data in the CO2 dataset in a way that gives you a deeper understanding of the data. What do you see?
+
+```{r}
+ggplot(CO2, aes(x = conc, y = uptake, color = Type, shape = Treatment)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "loess", se = FALSE) +
+  labs(
+    title = "CO2 Uptake vs CO2 Concentration",
+    x = "CO2 Concentration (mL/L)",
+    y = "CO2 Uptake (umol/m^2/sec)"
+  ) +
+  theme_minimal()
+
+# Explanation
+## The slope reflects how responsive each plant type is to increasing CO2
+## Quebec and Mississippi plants have different trends. Quebec plants are more efficient at lower CO2 concentrations, while Mississippi plants increase uptake more sharply as CO2 rises.
+```
+
+
+```{r}
+ggplot(CO2, aes(x = conc, y = uptake, color = Treatment)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Plant) +
+  labs(title = "CO2 Uptake per Plant") +
+  theme_minimal()
+
+# Explanation
+## Individual plants vary a lot in their response to CO2 concentration.
+```

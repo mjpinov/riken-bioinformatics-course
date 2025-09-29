@@ -1,0 +1,30 @@
+---
+title: 'Assignment 1, Task 8 '
+author: "María José Pino"
+---
+
+## 1. Install the Tidybiology package, which includes the data ‘chromosome’ and ‘proteins’
+
+```{r}
+devtools::install_github("hirscheylab/tidybiology")
+```
+
+### a. Extract summary statistics (mean, median and maximum) for the following variables from the ‘chromosome’ data: variations, protein coding genes, and miRNAs. Utilize the tidyverse functions to make this as simply as possible.
+
+```{r}
+
+```
+
+### b. How does the chromosome size distribute? Plot a graph that helps to visualize this by using ggplot2 package functions.
+
+```{r}
+
+```
+
+### c. Does the number of protein coding genes or miRNAs correlate with the length of the chromosome? Make two separate plots to visualize these relationships.
+
+```{r}
+
+```
+
+### d. Calculate the same summary statistics for the ‘proteins’ data variables length and mass. Create a meaningful visualization of the relationship between these two variables by utilizing the ggplot2 package functions. Play with the colors

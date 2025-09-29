@@ -1,0 +1,65 @@
+---
+title: 'Assignment 1, Task 6 - R functions'
+author: "María José Pino"
+---
+
+## 1. Write a function that calculates the ratio of the mean and the median of a given vector.
+This is a helpful measure to detect data with outlying values.
+Note: See Reference for R language
+
+```{r}
+mean_and_median <- function(x) {
+  # add restriction to considere numeric values only, otherwise mean can't be calculated
+  if (!is.numeric(x)) {
+    stop("Input must be numeric")
+  }
+  if (length(x) == 0) {
+    stop("Vector is empty")
+  }
+
+  list(
+    mean = mean(x, na.rm = TRUE),
+    median = median(x, na.rm = TRUE)
+  )
+}
+
+# examples
+mean_and_median(c("Luis", "Tomás", "María")) # error "Input must be numeric"
+mean_and_median(c(1, 5, 7, 2, 8))
+
+```
+
+## 2. Write a function that ignores the lowest and the highest value from a given vector and calculate the mean.
+
+```{r}
+?range()
+#range returns a vector containing the minimum and maximum of all the given arguments.
+
+trimmed_mean <- function(x) {
+  if (!is.numeric(x)) {
+    stop("Input must be numeric")
+  }
+  if (length(x) <= 2) {
+    stop("Vector must have more than 2 elements")
+  }
+
+  x_trimmed <- x[!(x %in% range(x))] # remove min and max
+  mean(x_trimmed, na.rm = TRUE)
+}
+
+# examples
+trimmed_mean(c("Luis", "Tomás", "María")) # error "Input must be numeric"
+trimmed_mean(c(1, 5, 7, 2, 8))
+```
+
+## 3. Read about piping from here:https://r4ds.had.co.nz/pipes.html#pipes (you don’t have to learn everything, a basic understanding of the usage is enough). 
+Write a short(max. 300 characters, no spaces) explanation of why, how, and when not to use pipes.
+
+Pipes make code easier to read by chaining operations without intermediate objects, however, when chains are long, the pipes can become harder to follow. Use them in a combination of 3 to 8 actions will help the reading, but when combining multiple primary inputs/outputs, might be better named intermediate outputs instead.
+
+
+## 4. Familiarize yourself with the apply-family of functions (apply, lapply, sapply etc.) 
+http://uc-r.github.io/apply_family
+Write a short explanation (max. 300 characters, no spaces) of why they could be useful in your work.
+
+The apply-family in R helps write clearer, faster data analysis by replacing many explicit loops with compact, vectorized code. Improve performance and readability.

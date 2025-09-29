@@ -1,0 +1,54 @@
+---
+title: 'Assignment 1, Task 5 - Using R example datasets'
+author: "María José Pino"
+---
+
+## 1. Use the R internal CO2 dataset (“data(CO2)”).
+```{r}
+#load dataset
+data(CO2)
+```
+
+## 2. Describe briefly the content of the CO2 dataset using the help function.
+```{r}
+# "?" for help
+?CO2
+
+# Carbon Dioxide Uptake in Grass Plants
+# Description
+# The CO2 data frame has 84 rows and 5 columns of data from an experiment on the cold tolerance of the grass species Echinochloa crus-galli.
+```
+
+## 3. What is the average and median CO2 uptake of the plants from Quebec and Mississippi?
+```{r}
+#-- Quebec
+quebec_uptake_average <- mean(CO2$uptake[CO2$Type == "Quebec"])
+quebec_uptake_median <- median(CO2$uptake[CO2$Type == "Quebec"])
+
+print(paste0(
+  "The average and median of CO2 uptake in Quebec are ",
+  round(quebec_uptake_average, 2),
+  " and ",
+  round(quebec_uptake_median, 2),
+  " respectively"
+))
+
+## "The average and median of CO2 uptake in Quebec are 33.54 and 37.15 respectively"
+
+#-- Mississippi
+mississippi_uptake_average <- mean(CO2$uptake[CO2$Type == "Mississippi"])
+mississippi_uptake_median <- median(CO2$uptake[CO2$Type == "Mississippi"])
+
+print(paste0(
+  "The average and median of CO2 uptake in Mississippi are ",
+  round(mississippi_uptake_average, 2),
+  " and ",
+  round(mississippi_uptake_median, 2),
+  " respectively"
+))
+
+## "The average and median of CO2 uptake in Mississippi are 20.88 and 19.3 respectively"
+```
+
+## 4. [Optional] In the “airway” example data from Bioconductor, how many genes are expressed in each sample? How many genes are not expressed in any sample?
+

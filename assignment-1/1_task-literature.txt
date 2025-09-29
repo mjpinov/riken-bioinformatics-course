@@ -1,0 +1,35 @@
+2) Answer the following questions
+
+a. What is the medically relevant insight from the article?
+
+Single cellular gene expression methods have established as a powerful technology for a more comprehensive biology in heath and disease, however, most of the method released focus in the cellular expression lacking the information of the factors that are contributing to de suppression or stimulation of the genes that are located both, in proximal and distant location to the targets genes. This research focused on the characterization of cis-regulatory elements, mostly promoters and enhancers, add additional information that allows to interrogate distal regulatory elements and their associated promoters. The analysis revealed the connection between broadly expressed promotors and cell-type specific distal transcribed cis-regulatory elements. Furthermore, the heritability assessment revealed subtle trait associations across cell populations. Applying this method to different populations opens up the interrogation on how genetic variants influence cis-regulatory elements activities and disease predispositions in
+specific cell types for diagnostic and therapeutic advancements.
+
+b. Which genomics technology/ technologies were used?
+
+- single-cell 5’-RNA-seq 
+	- sc-end5-dT : oligo(dT)
+	- sc-end5-rand : random hexer
+
+- single-cell 3'-RNA-seq
+	- sc-end3-dT
+
+
+- sc-ATAC-seq
+
+- Bulk CAGE : nAnT-iCAGE
+
+- Bulk RNA-seq
+
+- Bulk ATAC-seq
+
+3) Further related research questions
+
+a. List and explain at least three questions/ hypotheses you can think of that
+extend the analysis presented in the paper.
+
+a.1
+a.2
+a.3
+
+

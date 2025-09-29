@@ -1,0 +1,58 @@
+---
+title: 'Assignment 1, Task 4 - R basic operations'
+author: "María José Pino"
+---
+
+## 1. What is the square root of 10?
+```{r}
+# function from base package
+sqrt(10)
+```
+
+## 2. What is the logarithm of 32 to the base 2?
+```{r}
+# function from base package
+log(32, base = 2)
+```
+
+## 3. What is the sum of the numbers from 1 to 1000?
+```{r}
+# function from base package
+sum(1:1000)
+```
+
+## 4. What is the sum of all even numbers from 2 to 1000?
+```{r}
+#seq(2, 1000, by = 2)
+sum(seq(2, 1000, by = 2))
+```
+
+## 5. How many pairwise comparisons are there for 100 genes?
+```{r}
+# Combination where order does not matter, like compare gene A with gene B is the same than compare gene B with gene A.
+choose(100, 2)
+# [1] 4950
+
+paste0(
+  "In a comparison of 100 genes, there can be ",
+  choose(100, 2),
+  " pairwise combinations"
+)
+
+```
+
+## 6. And how many ways to arrange 100 genes in triples?
+```{r}
+# In the question ways to arrange, the order matters, so in this case we need to use permutation instead of combination.
+factorial(100) / factorial(100 - 3)
+# [1] 970200
+
+# But if the order does not matter, then
+choose(100, 3)
+# [1] 161700
+
+```
+
+```{r}
+dev.off()
+```
