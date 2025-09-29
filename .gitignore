@@ -1,5 +1,5 @@
 # ignore macOS file
-.DS_Store
+**/.DS_Store
 
 # ignore plots folder
 assignment-1/plots/
