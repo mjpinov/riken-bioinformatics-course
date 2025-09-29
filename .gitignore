@@ -1,3 +1,5 @@
+# ignore macOS file
 .DS_Store
-.git
-assignment-1/plots
+
+# ignore plots folder
+assignment-1/plots/
