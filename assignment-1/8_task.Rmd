@@ -6,25 +6,153 @@ author: "María José Pino"
 ## 1. Install the Tidybiology package, which includes the data ‘chromosome’ and ‘proteins’
 
 ```{r}
-devtools::install_github("hirscheylab/tidybiology")
+#install package
+#devtools::install_github("hirscheylab/tidybiology")
+library(tidybiology)
+library(ggplot2)
+library(dplyr)
 ```
 
 ### a. Extract summary statistics (mean, median and maximum) for the following variables from the ‘chromosome’ data: variations, protein coding genes, and miRNAs. Utilize the tidyverse functions to make this as simply as possible.
 
 ```{r}
-
+# Load data
+data(chromosome)
+data(proteins)
 ```
 
 ### b. How does the chromosome size distribute? Plot a graph that helps to visualize this by using ggplot2 package functions.
 
 ```{r}
+colnames(chromosome)
+
+# chromosome size in general
+ggplot(chromosome, aes(x = basepairs)) +
+  geom_histogram(binwidth = 50000000, color = "black") +
+  labs(
+    title = "Distribution of chromosome sizes",
+    x = "Chromosome size (bp)",
+    y = "Count"
+  ) +
+  theme_minimal()
+
+# chromosome size based in chromosome ID
+ggplot(chromosome, aes(x = reorder(id, -basepairs), y = basepairs)) +
+  geom_col() +
+  labs(
+    title = "Chromosome Sizes by Chromosome",
+    x = "Chromosome",
+    y = "Size (bp)"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
 ### c. Does the number of protein coding genes or miRNAs correlate with the length of the chromosome? Make two separate plots to visualize these relationships.
 
+#### Protein coding
 ```{r}
+fit_protein <- lm(protein_codinggenes ~ basepairs, data = chromosome)
+r2_protein <- summary(fit_protein)$r.squared
+
+ggplot(chromosome, aes(x = basepairs, y = protein_codinggenes)) +
+  geom_point(size = 1) +
+  geom_smooth(method = "lm", se = TRUE, color = "red", size = .5) + # adds linear regression line
+  annotate(
+    "text",
+    x = max(chromosome$basepairs) * 0.7,
+    y = max(chromosome$protein_codinggenes) * 0.9,
+    label = paste0("R² = ", round(r2_protein, 2)),
+    size = 5,
+    color = "black"
+  ) +
+  labs(
+    title = "Protein-coding genes vs chromosome length",
+    x = "Chromosome length (bp)",
+    y = "Number of protein-coding genes"
+  ) +
+  theme_minimal()
+```
+
+Only 37% of the variation in protein-coding gene counts is explained by the chromosome lenght.
+
+#### miRNAs
+```{r}
+fit_mi <- lm(mi_rna ~ basepairs, data = chromosome)
+r2_mi <- summary(fit_mi)$r.squared
+
+ggplot(chromosome, aes(x = basepairs, y = mi_rna)) +
+  geom_point(size = 1) +
+  geom_smooth(method = "lm", se = TRUE, color = "red", size = .5) + # linear regression line
+  annotate(
+    "text",
+    x = max(chromosome$basepairs) * 0.7,
+    y = max(chromosome$mi_rna) * 0.9,
+    label = paste0("R² = ", round(r2_mi, 2)),
+    size = 5,
+    color = "black"
+  ) +
+  labs(
+    title = "miRNAs vs chromosome length",
+    x = "Chromosome length (bp)",
+    y = "Number of miRNAs"
+  ) +
+  theme_minimal()
+```
+
+About 55% of the variation in mRNA counts across chromosomes can be explained by chromosomal length. 
+
+### d. Calculate the same summary statistics for the ‘proteins’ data variables length and mass. Create a meaningful visualization of the relationship between these two variables by utilizing the ggplot2 package functions. Play with the colors
+
+
+```{r}
+colnames(proteins)
+
+# Summary statistics
+summary(proteins[, c("length", "mass")])
+
+proteins %>%
+  summarise(
+    mean_length = mean(length, na.rm = TRUE),
+    sd_length = sd(length, na.rm = TRUE),
+    median_length = median(length, na.rm = TRUE),
+    mean_mass = mean(mass, na.rm = TRUE),
+    sd_mass = sd(mass, na.rm = TRUE),
+    median_mass = median(mass, na.rm = TRUE)
+  )
 
 ```
 
-### d. Calculate the same summary statistics for the ‘proteins’ data variables length and mass. Create a meaningful visualization of the relationship between these two variables by utilizing the ggplot2 package functions. Play with the colors
+```{r}
+ggplot(proteins, aes(x = length, y = mass, color = mass)) +
+  geom_point(alpha = 0.6, size = 3) +
+  scale_color_gradient(low = "#1f77b4", high = "#ff7f0e") + # gradient from blue to orange
+  geom_smooth(method = "lm", se = TRUE, color = "red") + # regression line
+  labs(
+    title = "Relationship between Protein Length and Mass",
+    x = "Protein length (aa)",
+    y = "Protein mass (kDa)",
+    color = "Mass"
+  ) +
+  theme_minimal()
+
+# since there is only one huge protein, I will use log() to scale the data
+```
+
+#### Log() scale due one huge protein dominating the plot
+```{r}
+ggplot(proteins, aes(x = length, y = mass, color = mass)) +
+  geom_point(alpha = 0.6, size = 3) +
+  scale_x_log10() +
+  scale_y_log10() +
+  scale_color_viridis_c() +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(
+    title = "Protein length vs mass (log scale)",
+    x = "Length (log10 aa)",
+    y = "Mass (log10 kDa)"
+  ) +
+  theme_minimal()
+
+```
