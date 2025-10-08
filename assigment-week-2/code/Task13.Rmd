@@ -1,0 +1,177 @@
+---
+title: "13 Complex Heatmaps"
+output:
+    html_document:
+        toc: true
+        number_sections: true
+---
+
+# Introduciton
+
+# Load Libraries
+
+```{r}
+#BiocManager::install("ComplexHeatmap")
+```
+
+```{r}
+DIR <- "/Users/marjos/Documents/courses/ki/RIKEN-bioinformatics/riken-bioinformatics-course/assigment-week-2/data/Task13"
+RES_DIR <- "/Users/marjos/Documents/courses/ki/RIKEN-bioinformatics/riken-bioinformatics-course/assigment-week-2/results/Task13"
+
+# Load required libraries
+suppressPackageStartupMessages({
+    library(ComplexHeatmap)
+    library(circlize)
+    library(data.table)
+})
+
+```
+
+# Run the first heatmap
+
+```{r, fig.width=8, fig.height=10, dpi=50}
+# Read data
+m.expr <- as.matrix(read.table(file.path(DIR,'module_usage.tsv')))
+
+# Define color function
+col_fun <- colorRamp2(c(min(m.expr), quantile(m.expr, 0.97)), c("white", "darkgreen"))
+
+# Prepare the row splits by removing the row labels after the first point
+row_split <- factor(gsub("\\..*", "", rownames(m.expr)))
+
+# Create first heatmap
+ht.expr1 <- Heatmap(m.expr,
+    col = col_fun,
+    border = TRUE,
+    row_split = row_split,
+    row_title = NULL,
+    column_title = NULL,
+    heatmap_legend_param = list(
+        title = "avg module score",
+        direction = "horizontal"
+    )
+) 
+
+# Draw first heatmap
+ht.expr1 <- draw(ht.expr1, heatmap_legend_side = "bottom")
+
+# Get row order and calculate maximum expression
+row_order <- rownames(m.expr)[unlist(row_order(ht.expr1))]
+expr.max <- apply(m.expr[row_order, ], 2, which.max)
+col_order <- names(sort(expr.max))
+
+# Prepare data for second heatmap
+row_split <- gsub("\\..*", "", rownames(m.expr[row_order, ]))
+row_split <- factor(row_split, levels = unique(row_split))
+
+col_split <- gsub("\\..*", "", row_order[expr.max[col_order]])
+col_split <- factor(col_split, levels = unique(col_split))
+
+col_fun <- colorRamp2(c(min(m.expr), quantile(m.expr, 0.03)), c("white", "darkgreen"))
+# Create second heatmap
+ht.expr2 <- Heatmap(m.expr[row_order, col_order],
+    col = col_fun,
+    border = TRUE,
+    cluster_columns = FALSE,
+    cluster_column_slices = FALSE,
+    cluster_rows = FALSE,
+    cluster_row_slices = FALSE,
+    column_split = col_split,
+    row_split = row_split,
+    row_title = NULL,
+    column_title = NULL,
+    show_row_dend = FALSE,
+    show_column_dend = FALSE,
+    heatmap_legend_param = list(
+        title = "avg module score",
+        direction = "horizontal"
+    ),
+    height = 6
+)
+
+# Draw second heatmap
+draw(ht.expr2, heatmap_legend_side = "bottom")
+```
+
+# Add pathways heatmap
+- Pathway enrichment calculated using fgsea
+
+```{r}
+res <- fread(file.path(DIR, "module_pathways.csv.gz"))
+res.sel <- res[module %in% col_order][order(pval), .SD[1:2], by = .(module)]
+res <- res[pathway %in% res.sel[, unique(pathway)] & module %in% col_order]
+res[, signedP := ifelse(NES > 0, logp, -logp)]
+setkey(res, pathway)
+
+m.path <- dcast(res, pathway ~ module, value.var = "signedP")
+m.path <- as.matrix(m.path, rownames = 1)
+m.path[is.na(m.path)] <- 0
+path.max <- apply(m.path[, col_order], 1, which.max)
+
+res.order <- res[order(pval), .SD[1], by = .(pathway)]
+setkey(res.order, pathway)
+res.split <- res.order[names(sort(path.max)), module]
+res.split <- factor(res.split, levels = col_order)
+
+col_fun <- colorRamp2(c(0, quantile(m.path, 0.95)), c("white", "red"))
+ht.path <- Heatmap((m.path[names(sort(path.max)), col_order]),
+    col = col_fun, cluster_rows = F, cluster_columns = F, cluster_row_slices = F, cluster_column_slices = F,
+    column_split = col_split,
+    row_split = res.split, row_gap = unit(0, "mm"),
+    row_names_max_width = unit(12, "cm"),
+    show_row_names = T,
+    row_title = NULL,
+    border = T,
+    heatmap_legend_param = list(title = "Pathway enrichment -log10(P)", direction = "horizontal"), height = 5
+)
+draw(ht.path, heatmap_legend_side = "bottom")
+```
+
+# Summarize pathways 
+- using the keyword_enrichment_from_GO from the simplifyEnrichment package
+- results provided
+
+```{r}
+go_terms <- fread(file.path(DIR, 'stromal_go_summary.tsv'))
+go_term_vec <- go_terms$V1
+names(go_term_vec) <- go_terms$module
+
+res <- fread(file.path(DIR, "module_pathways.csv.gz"))
+res.sel <- res[module %in% col_order][order(pval), .SD[1:100], by = .(module)]
+res <- res[pathway %in% res.sel[, unique(pathway)] & module %in% col_order]
+res[, signedP := ifelse(NES > 0, logp, -logp)]
+setkey(res, pathway)
+
+m.path <- dcast(res, pathway ~ module, value.var = "signedP")
+m.path <- as.matrix(m.path, rownames = 1)
+m.path[is.na(m.path)] <- 0
+path.max <- apply(m.path[, col_order], 1, which.max)
+
+res.order <- res[order(pval), .SD[1], by = .(pathway)]
+setkey(res.order, pathway)
+res.split <- res.order[names(sort(path.max)), module]
+res.split <- factor(res.split, levels = col_order)
+
+col_fun <- colorRamp2(c(0, quantile(m.path, 0.95)), c("white", "red"))
+ht.path <- Heatmap((m.path[names(sort(path.max)), col_order]),
+    col = col_fun, cluster_rows = F, cluster_columns = F, cluster_row_slices = F, cluster_column_slices = F,
+    column_split = col_split,
+    row_split = res.split, row_gap = unit(0, "mm"),
+    row_names_max_width = unit(16, "cm"),
+    show_row_names = F,
+    row_title = NULL,
+    border = T,
+    right_annotation = rowAnnotation(textbox = anno_textbox(res.split, as.list(go_term_vec))),
+    heatmap_legend_param = list(title = "Pathway enrichment -log10(P)", direction = "horizontal"), height = 5
+)
+draw(ht.path, heatmap_legend_side = "bottom")
+```
+
+```{r, fig.height=10, fig.width=8, dpi=69}
+ht.list <- ht.expr2 %v% ht.path
+ht.list <- draw(ht.list, heatmap_legend_side = "bottom")
+
+pdf(file.path(RES_DIR, "stromal_combined.pdf"), width = 8, height = 10)
+draw(ht.list, heatmap_legend_side = "bottom")
+dev.off()
+```

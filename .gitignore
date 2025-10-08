@@ -3,3 +3,10 @@
 
 # ignore plots folder
 assignment-1/plots/
+
+# ignore results and data folder week 2
+assigment-week-2/results/
+assigment-week-2/data/
+assigment-week-2/answers/
+Tasks.docx
+~$Tasks.docx
